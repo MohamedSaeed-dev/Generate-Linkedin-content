@@ -23,8 +23,11 @@ Whether you're a developer, AI enthusiast, or content creator, this project help
 ---
 
 ## 📦 Installation
-
+1- Get GOOGLE_API_KEY from [Gemini API Key](https://aistudio.google.com/app/apikey). <br>
+2- Put it into .env file. <br>
+3-
 ```bash
 git clone https://github.com/MohamedSaeed-dev/Generate-Linkedin-content.git
 cd Generate-Linkedin-content
 npm install
+

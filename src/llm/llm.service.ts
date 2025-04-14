@@ -5,12 +5,15 @@ import {
   MessagesPlaceholder,
   SystemMessagePromptTemplate,
   HumanMessagePromptTemplate,
-} from "@langchain/core/prompts";
+} from '@langchain/core/prompts';
 import { RunnableWithMessageHistory } from '@langchain/core/runnables';
 import { getMessageHistory } from './memory.store.js';
-import * as dotenv from 'dotenv'
+import * as dotenv from 'dotenv';
 import { Response } from 'express';
-dotenv.config()
+import { EmailService } from 'src/email/email.service';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { UsersService } from 'src/users/users.service';
+dotenv.config();
 const template = `
 
 أنت مساعد ذكي ومحترف في كتابة منشورات عربية مشوقة وجذابة على LinkedIn. وظيفتك هي إنشاء منشور واحد فقط في كل مرة، يتناول موضوعًا عشوائيًا إما في مجال الذكاء الاصطناعي (خاصة LLMs) أو تطوير الباكند باستخدام NestJS.
@@ -74,22 +77,96 @@ const chain = new RunnableWithMessageHistory({
 
 @Injectable()
 export class LlmService {
-  async ask(question: string, sessionId: string, res: Response) {
-    // res.setHeader('Content-Type', 'text/event-stream');
-    // res.setHeader('Cache-Control', 'no-cache');
-    // res.setHeader('Connection', 'keep-alive');
-    // res.flushHeaders();
+  constructor(
+    private readonly emailService: EmailService,
+    private prisma: PrismaService,
+    userService: UsersService,
+  ) {}
 
-    // const stream = await chain.stream({ question }, { configurable: { sessionId } });
+  async ask(question: string, sessionId: string) {
+    const response = await chain.invoke(
+      { question },
+      {
+        configurable: { sessionId: sessionId || this.generateRandomString() },
+      },
+    );
+    return { response: response.content as string };
+  }
+  async askAutomated() {
+    const users = await this.prisma.user.findMany({
+      where: {
+        deletedAt: null,
+      },
+    });
+    for (let user of users) {
+      const response = await chain.invoke(
+        { question: 'انشى محتوى جديد عشوائي' },
+        {
+          configurable: { sessionId: this.generateRandomString() },
+        },
+      );
 
-    // for await (const chunk of stream) {
-    //   res.write(`data: ${JSON.stringify(chunk.content)}\n\n`);
-    // }
+      const content = response.content as string;
+      const emailHtml = `
+    <!DOCTYPE html>
+    <html lang="ar" dir="rtl">
+    <head>
+      <meta charset="UTF-8">
+      <style>
+        body {
+          font-family: 'Arial', sans-serif;
+          background-color: #f7f7f7;
+          padding: 20px;
+          color: #222;
+        }
+        .container {
+          background-color: #fff;
+          padding: 30px;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          direction: rtl;
+          text-align: right;
+          line-height: 1.8;
+        }
+        .footer {
+          margin-top: 30px;
+          font-size: 12px;
+          color: #888;
+          text-align: center;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        ${content}
+      </div>
+      <div class="footer">
+  البريد أُرسل بواسطة مساعد الذكاء الاصطناعي 🤖✨<br>
+  <a href="${process.env.BASE_URL}/users/${user.id}/unsubscribe" style="color: #007bff;">لالغاء الاشتراك اضغط هنا</a>
+</div>
 
-    // res.write(`event: end\ndata: [DONE]\n\n`);
-    // res.end();
+    </body>
+    </html>
+  `;
 
-     const response = await chain.invoke({ question }, { configurable: { sessionId } });
-    return {response :response.content}
+      await this.emailService.sendMail(
+        user.email,
+        '🎯 منشور جاهز للنشر على LinkedIn!',
+        emailHtml,
+      );
+    }
+  }
+
+  // to create random sessionId for each user
+  generateRandomString(length: number = 5): string {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      const randomChar = characters.charAt(
+        Math.floor(Math.random() * characters.length),
+      );
+      result += randomChar;
+    }
+    return result;
   }
 }

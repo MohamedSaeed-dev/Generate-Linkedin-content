@@ -24,13 +24,14 @@ export class UsersService {
         },
       });
     }
-    return existingUser;
+    return {message: "subscribed successfully"}
   }
 
   async unsubscribe(id: string) {
-    return await this.prisma.user.update({
+    await this.prisma.user.update({
       where: { id },
       data: { deletedAt: new Date() },
     });
+    return {message: "unsubscribed successfully"}
   }
 }

@@ -145,7 +145,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\Lenovo\\Desktop\\backend\\generate_content\\prisma\\generated\\client",
+      "value": "/Users/mhmdsyd/Desktop/code/Generate-Linkedin-content/prisma/generated/client",
       "fromEnvVar": null
     },
     "config": {
@@ -154,12 +154,16 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "darwin-arm64",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "windows"
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\Lenovo\\Desktop\\backend\\generate_content\\prisma\\schema.prisma",
+    "sourceFilePath": "/Users/mhmdsyd/Desktop/code/Generate-Linkedin-content/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -181,8 +185,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"./generated/client\"\n}\n\ndatasource db {\n  provider = \"sqlserver\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id        String    @id @default(uuid())\n  email     String?   @unique\n  username  String    @unique\n  password  String\n  chats     Chat[]\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n  deletedAt DateTime?\n}\n\nmodel Chat {\n  id        String    @id @default(uuid())\n  userId    String\n  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  messages  Message[]\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n  deletedAt DateTime?\n}\n\nmodel Message {\n  id        String    @id @default(uuid())\n  chatId    String\n  chat      Chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)\n  senderId  String\n  content   String\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n  deletedAt DateTime?\n}\n",
-  "inlineSchemaHash": "68e18581f5312d3df405793759e1619678892a452109730a31186f37cfc7b6ea",
+  "inlineSchema": "generator client {\n  provider      = \"prisma-client-js\"\n  output        = \"./generated/client\"\n  binaryTargets = [\"native\", \"windows\"]\n}\n\ndatasource db {\n  provider = \"sqlserver\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id        String    @id @default(uuid())\n  email     String?   @unique\n  username  String    @unique\n  password  String\n  chats     Chat[]\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n  deletedAt DateTime?\n}\n\nmodel Chat {\n  id        String    @id @default(uuid())\n  userId    String\n  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)\n  messages  Message[]\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n  deletedAt DateTime?\n}\n\nmodel Message {\n  id        String    @id @default(uuid())\n  chatId    String\n  chat      Chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)\n  senderId  String\n  content   String\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n  deletedAt DateTime?\n}\n",
+  "inlineSchemaHash": "fbcabbedc130e632de24a849aa0413272794664cadefad327abe0c8b3553e7f7",
   "copyEngine": true
 }
 config.dirname = '/'

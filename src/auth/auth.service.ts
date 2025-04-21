@@ -1,18 +1,18 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { SignupDto } from './dto/signup.dto';
-import { LoginDto } from './dto/login.dto';
-import * as bcrypt from 'bcrypt';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { LoginDto } from './dto/login.dto';
+import { SignupDto } from './dto/signup.dto';
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
   async signup(dto: SignupDto) {
-    const existing = await this.prisma.user.findUnique({
-      where: { username: dto.username },
+    const existing = await this.prisma.user.findFirst({
+      where: { OR: [{ username: dto.username }, { email: dto.email }] },
     });
     if (existing)
       return { data: 'User Already Exists', status: HttpStatus.BAD_REQUEST };
@@ -49,6 +49,20 @@ export class AuthService {
       username: user.username,
     });
     return { data: { user, token }, status: HttpStatus.OK };
+  }
+
+  async unsubscribe(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user)
+      return { data: 'User not found', status: HttpStatus.NOT_FOUND };
+
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { deletedAt: new Date() },
+    });
+    return { data: 'User unsubscribed successfully', status: HttpStatus.OK };
   }
 
   async hashPassword(password: string) {

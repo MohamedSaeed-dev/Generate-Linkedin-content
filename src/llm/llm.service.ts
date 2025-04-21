@@ -1,17 +1,17 @@
-import { Injectable } from '@nestjs/common';
-import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import {
   ChatPromptTemplate,
+  HumanMessagePromptTemplate,
   MessagesPlaceholder,
   SystemMessagePromptTemplate,
-  HumanMessagePromptTemplate,
 } from '@langchain/core/prompts';
 import { RunnableWithMessageHistory } from '@langchain/core/runnables';
-import { getMessageHistory } from './memory.store.js';
+import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
+import { Injectable } from '@nestjs/common';
 import * as dotenv from 'dotenv';
-import { Response } from 'express';
 import { EmailService } from 'src/email/email.service';
+import { MessageType } from 'src/messages/enums/message-type.enum';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { getMessageHistory } from './memory.store.js';
 dotenv.config();
 const templateForContent = `
 
@@ -178,15 +178,22 @@ export class LlmService {
   constructor(
     private readonly emailService: EmailService,
     private prisma: PrismaService,
-  ) {}
+  ) { }
 
-  async ask(question: string, sessionId: string) {
+  async ask(question: string, chatId: string, sessionId: string) {
     const response = await chainForChat.invoke(
       { question },
       {
         configurable: { sessionId: sessionId || this.generateRandomString() },
       },
     );
+    await this.prisma.message.create({
+      data: {
+        chatId: chatId,
+        content: response.content as string,
+        senderId: MessageType.AI,
+      }
+    })
     return { response: response.content as string };
   }
   async askAutomated() {
@@ -248,7 +255,7 @@ export class LlmService {
 
       await this.emailService.sendMail(
         user.email,
-        '🎯 منشور جاهز للنشر على LinkedIn!',
+        '🎯 منشور جاهز للنشر على مواقع التواصل الاجتماعي!',
         emailHtml,
       );
     }

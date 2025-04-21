@@ -1,25 +1,18 @@
 import {
   Controller,
   Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
-  Res,
+  Query
 } from '@nestjs/common';
-import { LlmService } from './llm.service';
 import { AskLlmDto } from './dto/ask-llm.dto';
-import { Response } from 'express';
+import { LlmService } from './llm.service';
 
 @Controller('llm')
 export class LlmController {
-  constructor(private readonly llmService: LlmService) {}
+  constructor(private readonly llmService: LlmService) { }
 
   @Get()
   ask(@Query() query: AskLlmDto) {
-    return this.llmService.ask(query.question, query.session);
+    return this.llmService.ask(query.question, query.chatId, query.session);
   }
   @Get('ask-auto')
   askAutomated() {

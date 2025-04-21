@@ -1,20 +1,16 @@
 import {
   Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
   Delete,
-  Res,
+  Get,
+  Param,
+  Post,
+  Res
 } from '@nestjs/common';
-import { ChatsService } from './chats.service';
-import {  CreateMessageChatDto } from './dto/create-message-chat.dto';
-import { UpdateChatDto } from './dto/update-chat.dto';
 import { Response } from 'express';
+import { ChatsService } from './chats.service';
 @Controller('chats')
 export class ChatsController {
-  constructor(private readonly chatsService: ChatsService) {}
+  constructor(private readonly chatsService: ChatsService) { }
 
   @Post()
   async create(@Res() res: Response) {
@@ -22,29 +18,16 @@ export class ChatsController {
     return res.status(status).json(data);
   }
 
-  @Post(':id')
-  async createMessage(@Param('id') id: string, @Body() body: CreateMessageChatDto ,@Res() res: Response) {
-    const { data, status } = await this.chatsService.createMessage(id, body);
+  @Get()
+  async findAll(@Res() res: Response) {
+    const { data, status } = await this.chatsService.findAll();
     return res.status(status).json(data);
   }
 
-  @Get()
-  findAll() {
-    return this.chatsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.chatsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateChatDto: UpdateChatDto) {
-    return this.chatsService.update(+id, updateChatDto);
-  }
-
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.chatsService.remove(+id);
+  async delete(@Param('chatId') chatId: string, @Res() res: Response) {
+    const { data, status } = await this.chatsService.delete(chatId);
+    return res.status(status).json(data);
   }
+
 }

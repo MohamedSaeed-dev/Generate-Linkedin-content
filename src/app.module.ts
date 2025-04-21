@@ -6,9 +6,10 @@ import { EmailService } from './email/email.service';
 import { AuthModule } from './auth/auth.module';
 import { ChatsModule } from './chats/chats.module';
 import { ConfigModule } from '@nestjs/config';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), LlmModule, AuthModule, ChatsModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), LlmModule, AuthModule, ChatsModule, MessagesModule],
   controllers: [AppController],
   providers: [AppService, EmailService],
 })

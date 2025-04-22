@@ -12,6 +12,7 @@ import { EmailService } from 'src/email/email.service';
 import { MessageType } from 'src/messages/enums/message-type.enum';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { getMessageHistory } from './memory.store.js';
+import { Response } from 'express';
 dotenv.config();
 const templateForContent = `
 
@@ -180,21 +181,44 @@ export class LlmService {
     private prisma: PrismaService,
   ) { }
 
-  async ask(question: string, chatId: string, sessionId: string) {
-    const response = await chainForChat.invoke(
+  async ask(question: string, chatId: string, sessionId: string, res: Response) {
+
+    let fullResponse = '';
+
+    const stream = await chainForChat.stream(
       { question },
       {
-        configurable: { sessionId: sessionId || this.generateRandomString() },
-      },
-    );
-    await this.prisma.message.create({
-      data: {
-        chatId: chatId,
-        content: response.content as string,
-        senderId: MessageType.AI,
+        configurable: {
+          sessionId: sessionId || this.generateRandomString(),
+        },
       }
-    })
-    return { response: response.content as string };
+    );
+
+    try {
+      for await (const chunk of stream) {
+        const content = chunk?.content || '';
+        fullResponse += content;
+
+        // Send each chunk as SSE
+        res.write(`data: ${JSON.stringify({ content })}\n\n`);
+      }
+
+      // Save the full message
+      await this.prisma.message.create({
+        data: {
+          chatId,
+          content: fullResponse,
+          senderId: MessageType.AI,
+        },
+      });
+
+      // Send completion notice if needed
+      res.write(`event: done\ndata: ${JSON.stringify({ success: true })}\n\n`);
+    } catch (error) {
+      res.write(`event: error\ndata: ${JSON.stringify({ error: error.message })}\n\n`);
+    } finally {
+      res.end(); // Close the connection
+    }
   }
   async askAutomated() {
     const users = await this.prisma.user.findMany({

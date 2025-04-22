@@ -35,7 +35,7 @@ model Message {
   chatId    String
   chat      Chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)
   senderId  String
-  content   String
+  content   String    @db.VarChar(MAX)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?

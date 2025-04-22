@@ -22,6 +22,9 @@ export class ChatsService {
       where: {
         userId: this.request['user'].id,
       },
+      include: {
+        messages: true
+      }
     });
     return { data: chats, status: HttpStatus.OK };
   }

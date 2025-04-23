@@ -25,7 +25,7 @@ export class ChatsService {
       include: {
         messages: {
           orderBy: {
-            createdAt:'desc'
+            createdAt:'asc'
           }
         }
       },

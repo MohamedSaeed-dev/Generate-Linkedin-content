@@ -23,6 +23,9 @@ export class MessagesService {
     const chats = await this.prisma.message.findMany({
       where: {
         chatId: chatId,
+      },
+      orderBy: {
+        createdAt:'asc'
       }
     });
     return { data: chats, status: HttpStatus.OK };

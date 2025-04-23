@@ -23,7 +23,11 @@ export class ChatsService {
         userId: this.request['user'].id,
       },
       include: {
-        messages: true
+        messages: {
+          orderBy: {
+            createdAt:'desc'
+          }
+        }
       },
       orderBy: {
         createdAt:'desc'

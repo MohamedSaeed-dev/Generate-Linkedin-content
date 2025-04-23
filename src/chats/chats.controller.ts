@@ -24,7 +24,7 @@ export class ChatsController {
     return res.status(status).json(data);
   }
 
-  @Delete(':id')
+  @Delete(':chatId')
   async delete(@Param('chatId') chatId: string, @Res() res: Response) {
     const { data, status } = await this.chatsService.delete(chatId);
     return res.status(status).json(data);

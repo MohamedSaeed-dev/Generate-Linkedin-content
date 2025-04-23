@@ -24,6 +24,9 @@ export class ChatsService {
       },
       include: {
         messages: true
+      },
+      orderBy: {
+        createdAt:'desc'
       }
     });
     return { data: chats, status: HttpStatus.OK };

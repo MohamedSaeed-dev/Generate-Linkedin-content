@@ -1,16 +1,14 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native"]
 }
-
 datasource db {
   provider = "sqlserver"
   url      = env("DATABASE_URL")
 }
-
 model User {
   id        String    @id @default(uuid())
-  email     String?    @unique
+  email     String?   @unique
   username  String    @unique
   password  String
   chats     Chat[]
@@ -18,7 +16,6 @@ model User {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 }
-
 model Chat {
   id        String    @id @default(uuid())
   userId    String
@@ -28,13 +25,12 @@ model Chat {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 }
-
 model Message {
   id        String    @id @default(uuid())
   chatId    String
   chat      Chat      @relation(fields: [chatId], references: [id], onDelete: Cascade)
   senderId  String
-  content String @db.VarChar(MAX)
+  content   String    @db.VarChar(MAX)
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?

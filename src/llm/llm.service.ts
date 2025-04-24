@@ -8,11 +8,12 @@ import { RunnableWithMessageHistory } from '@langchain/core/runnables';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { Injectable } from '@nestjs/common';
 import * as dotenv from 'dotenv';
+import { Response } from 'express';
 import { EmailService } from 'src/email/email.service';
 import { MessageType } from 'src/messages/enums/message-type.enum';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { getMessageHistory } from './memory.store.js';
-import { Response } from 'express';
+import { marked } from 'marked';
 dotenv.config();
 const templateForContent = `
 
@@ -44,7 +45,7 @@ const templateForContent = `
 
 🎯 الهدف: تحفيز المطورين والمهتمين بالتقنية للتفاعل، ومشاركة المعرفة، وبناء هوية مهنية قوية على LinkedIn.
 
-
+دائما اجب مباشرة بدون مقدمات .
 `;
 
 const templateForChat = `
@@ -189,7 +190,7 @@ export class LlmService {
       { question },
       {
         configurable: {
-          sessionId: sessionId || this.generateRandomString(),
+          sessionId: chatId || sessionId || this.generateRandomString(),
         },
       }
     );
@@ -212,7 +213,6 @@ export class LlmService {
         },
       });
 
-      // Send completion notice if needed
       res.write(`event: done\ndata: ${JSON.stringify({ success: true })}\n\n`);
     } catch (error) {
       res.write(`event: error\ndata: ${JSON.stringify({ error: error.message })}\n\n`);
@@ -234,7 +234,9 @@ export class LlmService {
         },
       );
 
-      const content = response.content as string;
+      const markdown = response.content as string;
+      const htmlContent = marked.parse(markdown);
+
       const emailHtml = `
     <!DOCTYPE html>
     <html lang="ar" dir="rtl">
@@ -262,20 +264,22 @@ export class LlmService {
           color: #888;
           text-align: center;
         }
+        a {
+          color: #007bff;
+        }
       </style>
     </head>
     <body>
       <div class="container">
-        ${content}
+        ${htmlContent}
       </div>
       <div class="footer">
-  البريد أُرسل بواسطة مساعد الذكاء الاصطناعي 🤖✨<br>
-  <a href="${process.env.BASE_URL}/users/${user.id}/unsubscribe" style="color: #007bff;">لالغاء الاشتراك اضغط هنا</a>
-</div>
-
+        البريد أُرسل بواسطة مساعد الذكاء الاصطناعي 🤖✨<br>
+        <a href="${process.env.BASE_URL}/users/${user.id}/unsubscribe">لالغاء الاشتراك اضغط هنا</a>
+      </div>
     </body>
     </html>
-  `;
+    `;
 
       await this.emailService.sendMail(
         user.email,

@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Query,
   Res
@@ -12,27 +13,27 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { SignupDto } from './dto/signup.dto';
 
-@Controller('auth')
+@Controller()
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
-  @Post('signup')
+  @Post('auth/signup')
   @Public()
   async signup(@Body() dto: SignupDto, @Res() res: Response) {
     const { status, data } = await this.authService.signup(dto);
     return res.status(status).json({ data });
   }
 
-  @Post('login')
+  @Post('auth/login')
   @Public()
   async login(@Body() dto: LoginDto, @Res() res: Response) {
     const { status, data } = await this.authService.login(dto);
     return res.status(status).json({ data });
   }
 
-  @Get()
+  @Get('users/:userId/unsubscribe')
   @Public()
-  async unsubscribe(@Query() userId: string ,@Res() res: Response) {
+  async unsubscribe(@Param('userId') userId: string ,@Res() res: Response) {
     const { status, data } = await this.authService.unsubscribe(userId);
     return res.status(status).json({ data });
   }

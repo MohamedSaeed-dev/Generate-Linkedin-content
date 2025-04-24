@@ -39,6 +39,7 @@
     "express-session": "^1.18.1",
     "jsonwebtoken": "^9.0.2",
     "langchain": "^0.3.21",
+    "marked": "^15.0.10",
     "nodemailer": "^6.10.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",

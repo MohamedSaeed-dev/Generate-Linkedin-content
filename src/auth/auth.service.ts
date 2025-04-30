@@ -12,7 +12,7 @@ export class AuthService {
   ) { }
   async signup(dto: SignupDto) {
     const existing = await this.prisma.user.findFirst({
-      where: { OR: [{ username: dto.username }, { email: dto.email }] },
+      where: { OR: [{ username: dto.username }, { email: dto.email }], AND:{deletedAt: null} },
     });
     if (existing)
       return { data: 'User Already Exists', status: HttpStatus.BAD_REQUEST };
@@ -33,7 +33,7 @@ export class AuthService {
   }
   async login(dto: LoginDto) {
     const user = await this.prisma.user.findUnique({
-      where: { username: dto.username },
+      where: { username: dto.username, deletedAt: null },
     });
     if (!user)
       return { data: 'invalid credentials', status: HttpStatus.BAD_REQUEST };
@@ -55,7 +55,7 @@ export class AuthService {
   }
   async unsubscribe(userId: string) {
     const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: userId, deletedAt: null },
     });
     if (!user)
       return { data: 'User not found', status: HttpStatus.NOT_FOUND };

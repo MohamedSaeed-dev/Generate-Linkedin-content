@@ -223,6 +223,7 @@ export class LlmService {
   async askAutomated() {
     const users = await this.prisma.user.findMany({
       where: {
+        isSubscribed: true,
         deletedAt: null,
       },
     });

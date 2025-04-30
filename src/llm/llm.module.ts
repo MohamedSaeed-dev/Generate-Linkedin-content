@@ -8,5 +8,6 @@ import { PrismaModule } from 'src/prisma/prisma.module';
   imports: [PrismaModule],
   controllers: [LlmController],
   providers: [LlmService, EmailService],
+  exports: [LlmService],
 })
 export class LlmModule {}

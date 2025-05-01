@@ -6,10 +6,11 @@ export class SchedulesService {
   constructor(private readonly llmService: LlmService) { }
   private readonly logger = new Logger(SchedulesService.name);
 
-  @Cron('* * * * *')
+  @Cron('0 15 * * *')
   async handleCron() {
-    this.logger.debug('Cron job running every 1 minute');
+    this.logger.debug('Cron job running at 3:00 PM daily');
     await this.llmService.askAutomated();
   }
+
 
 }

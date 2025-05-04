@@ -6,7 +6,7 @@ export class SchedulesService {
   constructor(private readonly llmService: LlmService) { }
   private readonly logger = new Logger(SchedulesService.name);
 
-  @Cron('0 15 * * *', {
+  @Cron('0 0 17 * * *', {
     timeZone: 'Asia/Riyadh'
   })
   async handleCron() {

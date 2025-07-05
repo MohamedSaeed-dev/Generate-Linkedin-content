@@ -1,0 +1,43 @@
+name: Build, zip and deploy NestJS to MonsterASP.NET
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build_and_deploy:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # or your project's Node.js version
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build NestJS app
+        run: npm run build
+
+      - name: Copy compiled app to publish folder
+        run: |
+          mkdir publish
+          xcopy /E /I /Y dist publish
+
+      - name: Zip publish folder
+        run: Compress-Archive -Path ./publish/* -DestinationPath ./app.zip
+
+      - name: Deploy to MonsterASP.NET via WebDeploy
+        uses: rasmusbuchholdt/simply-web-deploy@2.1.0
+        with:
+          website-name: ${{ secrets.WEBSITE_NAME }}
+          server-computer-name: ${{ secrets.SERVER_COMPUTER_NAME }}
+          server-username: ${{ secrets.SERVER_USERNAME }}
+          server-password: ${{ secrets.SERVER_PASSWORD }}
+          package: './app.zip'

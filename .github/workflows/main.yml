@@ -25,13 +25,8 @@ jobs:
       - name: Build NestJS app
         run: npm run build
 
-      - name: Copy compiled app to publish folder
-        run: |
-          mkdir publish
-          xcopy /E /I /Y dist publish
-
       - name: Zip publish folder
-        run: Compress-Archive -Path ./publish/* -DestinationPath ./dist/app.zip
+        run: Compress-Archive -Path ./dist/* -DestinationPath ./dist/app.zip
 
       - name: Deploy to MonsterASP.NET via WebDeploy
         uses: rasmusbuchholdt/simply-web-deploy@2.1.0

@@ -31,7 +31,7 @@ jobs:
           xcopy /E /I /Y dist publish
 
       - name: Zip publish folder
-        run: Compress-Archive -Path ./publish/* -DestinationPath ./app.zip
+        run: Compress-Archive -Path ./publish/* -DestinationPath ./dist/app.zip
 
       - name: Deploy to MonsterASP.NET via WebDeploy
         uses: rasmusbuchholdt/simply-web-deploy@2.1.0

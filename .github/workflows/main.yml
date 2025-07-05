@@ -33,37 +33,6 @@ jobs:
       - name: Zip publish folder
         run: Compress-Archive -Path ./publish/* -DestinationPath ./app.zip
 
-      - name: Debug Secrets Existence
-        shell: bash
-        run: |
-          if [ -z "${{ secrets.SERVER_COMPUTER_NAME }}" ]; then
-            echo "SERVER_COMPUTER_NAME is NOT SET or EMPTY"
-            exit 1
-          else
-            echo "SERVER_COMPUTER_NAME is set"
-          fi
-
-          if [ -z "${{ secrets.WEBSITE_NAME }}" ]; then
-            echo "WEBSITE_NAME is NOT SET or EMPTY"
-            exit 1
-          else
-            echo "WEBSITE_NAME is set"
-          fi
-
-          if [ -z "${{ secrets.SERVER_USERNAME }}" ]; then
-            echo "SERVER_USERNAME is NOT SET or EMPTY"
-            exit 1
-          else
-            echo "SERVER_USERNAME is set"
-          fi
-
-          if [ -z "${{ secrets.SERVER_PASSWORD }}" ]; then
-            echo "SERVER_PASSWORD is NOT SET or EMPTY"
-            exit 1
-          else
-            echo "SERVER_PASSWORD is set"
-          fi
-
       - name: Deploy to MonsterASP.NET via WebDeploy
         uses: rasmusbuchholdt/simply-web-deploy@2.1.0
         with:
